@@ -1,6 +1,6 @@
-===========
+
  Ticket System: Installation Guide
-===============================
+
 
 1. SYSTEM REQUIREMENTS
 -------------------------------
