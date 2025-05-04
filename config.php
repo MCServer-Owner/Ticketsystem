@@ -2,10 +2,10 @@
 // config.php
 
 // Setze die Datenbank-Verbindungsdetails
-$servername = "10.0.0.128";  // oder die IP-Adresse deines DB-Servers
-$username = "znuny";
-$password = "Adminer123456789";
-$dbname = "ticketsystem";  // Deine Ticket-Datenbank
+$host = 'localhost';
+$db = 'your_database';
+$user = 'your_db_user';
+$pass = 'your_db_password';
 
 // Erstelle eine Verbindung zur Datenbank
 $conn = new mysqli($servername, $username, $password, $dbname);
