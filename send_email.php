@@ -12,21 +12,21 @@ function send_email($to, $subject, $message) {
     try {
         // SMTP-Konfiguration
         $mail->isSMTP();                                      // Setzt den Mailer auf SMTP
-        $mail->Host       = 'smtp.yourdomain.com';             // SMTP-Server
+        $mail->Host       = 'myts3server.at';             // SMTP-Server von Poste.io
         $mail->SMTPAuth   = true;                               // Aktiviert die SMTP-Authentifizierung
-        $mail->Username   = 'yourmailuser@yourdomain.com';          // E-Mail-Adresse des Absenders
-        $mail->Password   = 'yourpassword';                    // Passwort für das Postfach
+        $mail->Username   = 'noreply@myts3server.at';          // E-Mail-Adresse des Absenders
+        $mail->Password   = 'Adminer123456';                    // Passwort für das Postfach
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;      // STARTTLS-Verschlüsselung
         $mail->Port       = 587;                                // Port für STARTTLS (587) oder SSL (465)
 
         // Absender
-        $mail->setFrom('yourmailuser@yourdomain.com', 'Ticketsystem');
+        $mail->setFrom('noreply@myts3server.at', 'Ticketsystem');
 
         // Empfänger
         $mail->addAddress($to);                                 // Empfängeradresse
 
         // Antwort-Adresse (falls vorhanden)
-        $mail->addReplyTo('yourmailuser@yourdomain.com', 'Ticketsystem');
+        $mail->addReplyTo('noreply@myts3server.at', 'Ticketsystem');
 
         // Inhalt der E-Mail
         $mail->isHTML(true);                                    // Setzt das E-Mail-Format auf HTML
