@@ -2,7 +2,6 @@
 session_start();
 require_once 'config.php';
 require_once 'admin_functions.php';
-require_once 'send_email.php';
 include 'navigation.php';
 
 if (!isset($_SESSION['user_id'])) {
