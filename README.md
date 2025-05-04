@@ -24,10 +24,10 @@ Clone all files of the Repository or extract the ZIP archive to your web server,
 ----------------
 Edit the file `config.php` and enter your database access data:
 
-    $host = 'localhost';
-    $db = 'your_database';
-    $user = 'your_db_user';
-    $pass = 'your_db_password';
+    $hostname = 'localhost';
+    $dbname = 'your_database';
+    $username = 'your_db_user';
+    $password = 'your_db_password';
 
 4. SET UP DATABASE
 -----------------------
