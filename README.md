@@ -25,9 +25,9 @@ Upload all files and folders of the ZIP archive to your web server, e.g. to `/va
 Edit the file `config.php` and enter your database access data:
 
     $host = 'localhost';
- $db = 'your_database';
- $user = 'your_db_user';
- $pass = 'your_db_password';
+    $db = 'your_database';
+    $user = 'your_db_user';
+    $pass = 'your_db_password';
 
 4. SET UP DATABASE
 -----------------------
