@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once 'config.php';
-require_once 'send_email.php';
 require_once 'admin_functions.php';
 include 'navigation.php';
 
