@@ -18,7 +18,7 @@ You can install packages under Ubuntu/Debian (e.g. for PHP 8.2) like this:
 
 2. UPLOAD FILES
 --------------------
-Upload all files and folders of the ZIP archive to your web server, e.g. to `/var/www/html/ticketsystem`.
+Clone all files of the Repository or extract the ZIP archive to your web server, e.g. to `/var/www/html/ticketsystem`.
 
 3. CONFIGURATION
 ----------------
