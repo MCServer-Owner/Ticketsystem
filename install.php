@@ -1,60 +1,51 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $dbHost = $_POST['db_host'];
-    $dbUser = $_POST['db_user'];
-    $dbPass = $_POST['db_pass'];
-    $dbName = $_POST['db_name'];
-    $mailHost = $_POST['mail_host'];
-    $mailUsername = $_POST['mail_username'];
-    $mailPassword = $_POST['mail_password'];
-    $mailPort = $_POST['mail_port'];
-    $mailFrom = $_POST['mail_from'];
-    $mailFromName = $_POST['mail_from_name'];
+// install.php
 
-    $adminUsername = $_POST['admin_username'];
-    $adminPassword = password_hash($_POST['admin_password'], PASSWORD_DEFAULT);
-    $adminEmail = $_POST['admin_email'];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $db_servername = $_POST['db_servername'] ?? '';
+    $db_username   = $_POST['db_username'] ?? '';
+    $db_password   = $_POST['db_password'] ?? '';
+    $db_name       = $_POST['db_name'] ?? '';
 
-    // Verbindung zur Datenbank
-    $conn = new mysqli($dbHost, $dbUser, $dbPass);
+    $smtp_host     = $_POST['smtp_host'] ?? '';
+    $smtp_user     = $_POST['smtp_user'] ?? '';
+    $smtp_pass     = $_POST['smtp_pass'] ?? '';
+    $smtp_port     = $_POST['smtp_port'] ?? '';
+    $smtp_from     = $_POST['smtp_from'] ?? '';
+    $smtp_replyto  = $_POST['smtp_replyto'] ?? '';
 
-    if ($conn->connect_error) {
-        die("Database connection failed: " . $conn->connect_error);
-    }
+    $configContent = <<<PHP
+<?php
+// config.php
 
-    // Datenbank erstellen (wenn nicht vorhanden)
-    $conn->query("CREATE DATABASE IF NOT EXISTS `$dbName`");
-    $conn->select_db($dbName);
+// Setze die Datenbank-Verbindungsdetails
+\$servername = "$db_servername";
+\$username = "$db_username";
+\$password = "$db_password";
+\$dbname = "$db_name";
 
-    // Tabellen anlegen
-    $schema = file_get_contents('schema.sql');
-    if (!$conn->multi_query($schema)) {
-        die("Schema import failed: " . $conn->error);
-    }
-    while ($conn->more_results() && $conn->next_result()) { }
+// Erstelle eine Verbindung zur Datenbank
+\$conn = new mysqli(\$servername, \$username, \$password, \$dbname);
 
-    // Admin-Nutzer einfügen
-    $stmt = $conn->prepare("INSERT INTO users (username, password, email, is_admin, status) VALUES (?, ?, ?, 1, 'active')");
-    $stmt->bind_param("sss", $adminUsername, $adminPassword, $adminEmail);
-    $stmt->execute();
+// Prüfe die Verbindung
+if (\$conn->connect_error) {
+    die("Verbindung fehlgeschlagen: " . \$conn->connect_error);
+}
 
-    // config.php generieren
-    $configContent = "<?php\n";
-    $configContent .= "define('DB_HOST', '" . addslashes($dbHost) . "');\n";
-    $configContent .= "define('DB_USER', '" . addslashes($dbUser) . "');\n";
-    $configContent .= "define('DB_PASS', '" . addslashes($dbPass) . "');\n";
-    $configContent .= "define('DB_NAME', '" . addslashes($dbName) . "');\n\n";
-    $configContent .= "define('MAIL_HOST', '" . addslashes($mailHost) . "');\n";
-    $configContent .= "define('MAIL_USERNAME', '" . addslashes($mailUsername) . "');\n";
-    $configContent .= "define('MAIL_PASSWORD', '" . addslashes($mailPassword) . "');\n";
-    $configContent .= "define('MAIL_PORT', " . (int)$mailPort . ");\n";
-    $configContent .= "define('MAIL_FROM_ADDRESS', '" . addslashes($mailFrom) . "');\n";
-    $configContent .= "define('MAIL_FROM_NAME', '" . addslashes($mailFromName) . "');\n";
+// SMTP-Konfiguration für send_email.php
+\$smtp_config = [
+    'host' => "$smtp_host",
+    'username' => "$smtp_user",
+    'password' => "$smtp_pass",
+    'port' => $smtp_port,
+    'from' => "$smtp_from",
+    'reply_to' => "$smtp_replyto"
+];
+?>
+PHP;
 
-    file_put_contents('config.php', $configContent);
-    chmod('config.php', 0644);
-
-    echo "<p style='color:green;'>Installation successful. <strong>config.php</strong> was created and admin user added.</p>";
+    file_put_contents("config.php", $configContent);
+    echo "<h2>config.php erfolgreich erstellt.</h2><p><a href='index.php'>Zum Ticketsystem</a></p>";
     exit;
 }
 ?>
@@ -66,87 +57,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Install Ticketsystem</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-            max-width: 600px;
-            margin: auto;
-        }
-        h2 {
-            text-align: center;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-top: 10px;
-        }
-        input[type="text"],
-        input[type="password"],
-        input[type="email"],
-        input[type="number"] {
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        form { max-width: 600px; margin: auto; }
+        input[type=text], input[type=password], input[type=number], input[type=email] {
+            width: 100%;
             padding: 10px;
-            font-size: 1rem;
-            margin-top: 5px;
+            margin: 6px 0 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
-        input[type="submit"] {
-            margin-top: 20px;
-            padding: 12px;
-            background-color: #007BFF;
+        input[type=submit] {
+            background-color: #007bff;
             color: white;
+            padding: 12px;
             border: none;
-            font-size: 1rem;
+            border-radius: 4px;
             cursor: pointer;
+            width: 100%;
         }
-        input[type="submit"]:hover {
+        input[type=submit]:hover {
             background-color: #0056b3;
+        }
+        @media screen and (max-width: 600px) {
+            body { padding: 10px; }
         }
     </style>
 </head>
 <body>
-    <h2>Install Ticket System</h2>
-    <form method="POST">
-        <label>Database Host</label>
-        <input type="text" name="db_host" required>
+    <h2>Ticketsystem Installation</h2>
+    <form method="post">
+        <h3>Datenbank-Verbindung</h3>
+        <label>Servername (z. B. dbservername)</label>
+        <input type="text" name="db_servername" required value="dbserver">
 
-        <label>Database User</label>
-        <input type="text" name="db_user" required>
+        <label>Datenbank-Benutzer</label>
+        <input type="text" name="db_username" required value="dbuser">
 
-        <label>Database Password</label>
-        <input type="password" name="db_pass" required>
+        <label>Datenbank-Passwort</label>
+        <input type="password" name="db_password" required value="dbpassword">
 
-        <label>Database Name</label>
-        <input type="text" name="db_name" required>
+        <label>Datenbank-Name</label>
+        <input type="text" name="db_name" required value="dbname">
 
-        <label>Admin Username</label>
-        <input type="text" name="admin_username" required>
+        <h3>SMTP-Konfiguration</h3>
+        <label>SMTP-Host</label>
+        <input type="text" name="smtp_host" required value="yoursmtphost">
 
-        <label>Admin Password</label>
-        <input type="password" name="admin_password" required>
+        <label>SMTP-Benutzer</label>
+        <input type="email" name="smtp_user" required value="yourmail">
 
-        <label>Admin Email</label>
-        <input type="email" name="admin_email" required>
+        <label>SMTP-Passwort</label>
+        <input type="password" name="smtp_pass" required value="yourpassword">
 
-        <label>SMTP Host</label>
-        <input type="text" name="mail_host" required>
+        <label>SMTP-Port</label>
+        <input type="number" name="smtp_port" required value="587">
 
-        <label>SMTP Username</label>
-        <input type="text" name="mail_username" required>
+        <label>Absenderadresse</label>
+        <input type="email" name="smtp_from" required value="yourmail">
 
-        <label>SMTP Password</label>
-        <input type="password" name="mail_password" required>
+        <label>Antwortadresse (Reply-To)</label>
+        <input type="email" name="smtp_replyto" required value="yourmail">
 
-        <label>SMTP Port</label>
-        <input type="number" name="mail_port" required>
-
-        <label>Mail From Address</label>
-        <input type="email" name="mail_from" required>
-
-        <label>Mail From Name</label>
-        <input type="text" name="mail_from_name" required>
-
-        <input type="submit" value="Install">
+        <input type="submit" value="config.php erstellen">
     </form>
 </body>
 </html>
