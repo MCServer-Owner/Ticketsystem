@@ -47,7 +47,7 @@ $is_admin = $user_id ? isAdmin($user_id, $conn) : false;
                         </li>
                     <?php endif; ?>
                     <li class="nav-link">
-                        <a href="mailto:support@yourdomain.com">Contact Us</a>
+                        <a href="mailto:support@myts3server.at">Contact Us</a>
                     </li>
                 </ul>
 

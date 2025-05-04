@@ -2,10 +2,10 @@
 // config.php
 
 // Setze die Datenbank-Verbindungsdetails
-$host = 'localhost';
-$db = 'your_database';
-$user = 'your_db_user';
-$pass = 'your_db_password';
+$servername = "localhost";  // oder die IP-Adresse deines DB-Servers
+$username = "youruser";
+$password = "yourpassword";
+$dbname = "yourdbname";  // Deine Ticket-Datenbank
 
 // Erstelle eine Verbindung zur Datenbank
 $conn = new mysqli($servername, $username, $password, $dbname);
