@@ -1,6 +1,5 @@
 <?php
 include 'config.php';
-include 'send_email.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
