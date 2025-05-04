@@ -28,7 +28,7 @@ The following files and folders must be present in the project directory:
 3. INSTALLATION
 -------------------------------
 a) Open in your browser:
-   http://<your-domain>/install.php
+   http://your-domain.tld/install.php
 
 b) Enter all required settings:
    - Database credentials
