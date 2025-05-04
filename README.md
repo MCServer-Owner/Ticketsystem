@@ -42,5 +42,3 @@ The following tables are created automatically:
 - ticket_status_history
 
 Then **delete or protect the `install.php`** to ensure security.
-
-Translated with DeepL.com (free version)
