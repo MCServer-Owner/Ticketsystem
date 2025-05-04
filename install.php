@@ -1,62 +1,60 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $db_host = $_POST['db_host'];
-    $db_user = $_POST['db_user'];
-    $db_pass = $_POST['db_pass'];
-    $db_name = $_POST['db_name'];
-    $admin_user = $_POST['admin_user'];
-    $admin_pass = password_hash($_POST['admin_pass'], PASSWORD_DEFAULT);
-    $admin_email = $_POST['admin_email'];
-    $mail_host = $_POST['mail_host'];
-    $mail_port = $_POST['mail_port'];
-    $mail_user = $_POST['mail_user'];
-    $mail_pass = $_POST['mail_pass'];
-    $mail_from = $_POST['mail_from'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $dbHost = $_POST['db_host'];
+    $dbUser = $_POST['db_user'];
+    $dbPass = $_POST['db_pass'];
+    $dbName = $_POST['db_name'];
+    $mailHost = $_POST['mail_host'];
+    $mailUsername = $_POST['mail_username'];
+    $mailPassword = $_POST['mail_password'];
+    $mailPort = $_POST['mail_port'];
+    $mailFrom = $_POST['mail_from'];
+    $mailFromName = $_POST['mail_from_name'];
+
+    $adminUsername = $_POST['admin_username'];
+    $adminPassword = password_hash($_POST['admin_password'], PASSWORD_DEFAULT);
+    $adminEmail = $_POST['admin_email'];
 
     // Verbindung zur Datenbank
-    $conn = new mysqli($db_host, $db_user, $db_pass);
+    $conn = new mysqli($dbHost, $dbUser, $dbPass);
+
     if ($conn->connect_error) {
-        die("Verbindung fehlgeschlagen: " . $conn->connect_error);
+        die("Database connection failed: " . $conn->connect_error);
     }
 
-    // Datenbank erstellen
-    $conn->query("CREATE DATABASE IF NOT EXISTS $db_name");
-    $conn->select_db($db_name);
+    // Datenbank erstellen (wenn nicht vorhanden)
+    $conn->query("CREATE DATABASE IF NOT EXISTS `$dbName`");
+    $conn->select_db($dbName);
 
-    // SQL-Schema laden
+    // Tabellen anlegen
     $schema = file_get_contents('schema.sql');
     if (!$conn->multi_query($schema)) {
-        die("Fehler beim Ausführen von schema.sql: " . $conn->error);
+        die("Schema import failed: " . $conn->error);
     }
+    while ($conn->more_results() && $conn->next_result()) { }
 
-    // Admin-Benutzer anlegen
+    // Admin-Nutzer einfügen
     $stmt = $conn->prepare("INSERT INTO users (username, password, email, is_admin, status) VALUES (?, ?, ?, 1, 'active')");
-    $stmt->bind_param("sss", $admin_user, $admin_pass, $admin_email);
+    $stmt->bind_param("sss", $adminUsername, $adminPassword, $adminEmail);
     $stmt->execute();
 
-    // config.php schreiben
-    $configContent = "<?php
-\$host = '$db_host';
-\$user = '$db_user';
-\$password = '$db_pass';
-\$dbname = '$db_name';
-\$conn = new mysqli(\$host, \$user, \$password, \$dbname);
-if (\$conn->connect_error) {
-    die('Verbindung fehlgeschlagen: ' . \$conn->connect_error);
-}
+    // config.php generieren
+    $configContent = "<?php\n";
+    $configContent .= "define('DB_HOST', '" . addslashes($dbHost) . "');\n";
+    $configContent .= "define('DB_USER', '" . addslashes($dbUser) . "');\n";
+    $configContent .= "define('DB_PASS', '" . addslashes($dbPass) . "');\n";
+    $configContent .= "define('DB_NAME', '" . addslashes($dbName) . "');\n\n";
+    $configContent .= "define('MAIL_HOST', '" . addslashes($mailHost) . "');\n";
+    $configContent .= "define('MAIL_USERNAME', '" . addslashes($mailUsername) . "');\n";
+    $configContent .= "define('MAIL_PASSWORD', '" . addslashes($mailPassword) . "');\n";
+    $configContent .= "define('MAIL_PORT', " . (int)$mailPort . ");\n";
+    $configContent .= "define('MAIL_FROM_ADDRESS', '" . addslashes($mailFrom) . "');\n";
+    $configContent .= "define('MAIL_FROM_NAME', '" . addslashes($mailFromName) . "');\n";
 
-// Mail-Konfiguration
-\$mail_config = [
-    'host' => '$mail_host',
-    'port' => $mail_port,
-    'username' => '$mail_user',
-    'password' => '$mail_pass',
-    'from' => '$mail_from'
-];
-?>";
-    file_put_contents("config.php", $configContent);
+    file_put_contents('config.php', $configContent);
+    chmod('config.php', 0644);
 
-    echo "<p style='color:green;'>Installation abgeschlossen! Du kannst dich jetzt als <strong>$admin_user</strong> einloggen.</p>";
+    echo "<p style='color:green;'>Installation successful. <strong>config.php</strong> was created and admin user added.</p>";
     exit;
 }
 ?>
@@ -65,106 +63,90 @@ if (\$conn->connect_error) {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Ticketsystem Installation</title>
+    <title>Install Ticketsystem</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             font-family: sans-serif;
             padding: 20px;
-            background: #f5f5f5;
-        }
-
-        form {
-            background: white;
             max-width: 600px;
             margin: auto;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px #ccc;
         }
-
         h2 {
             text-align: center;
         }
-
+        form {
+            display: flex;
+            flex-direction: column;
+        }
         label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
+            margin-top: 10px;
         }
-
-        input {
-            width: 100%;
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="number"] {
             padding: 10px;
+            font-size: 1rem;
             margin-top: 5px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
         }
-
-        input[type=submit] {
-            background-color: #4CAF50;
+        input[type="submit"] {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #007BFF;
             color: white;
             border: none;
-            margin-top: 20px;
+            font-size: 1rem;
             cursor: pointer;
         }
-
-        input[type=submit]:hover {
-            background-color: #45a049;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            form {
-                padding: 15px;
-            }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
+    <h2>Install Ticket System</h2>
     <form method="POST">
-        <h2>Ticketsystem Installation</h2>
+        <label>Database Host</label>
+        <input type="text" name="db_host" required>
 
-        <label>Datenbank Host</label>
-        <input type="text" name="db_host" required placeholder="z. B. localhost">
-
-        <label>Datenbank Benutzer</label>
+        <label>Database User</label>
         <input type="text" name="db_user" required>
 
-        <label>Datenbank Passwort</label>
-        <input type="password" name="db_pass">
+        <label>Database Password</label>
+        <input type="password" name="db_pass" required>
 
-        <label>Datenbank Name</label>
+        <label>Database Name</label>
         <input type="text" name="db_name" required>
 
-        <label>Admin Benutzername</label>
-        <input type="text" name="admin_user" required>
+        <label>Admin Username</label>
+        <input type="text" name="admin_username" required>
 
-        <label>Admin Passwort</label>
-        <input type="password" name="admin_pass" required>
+        <label>Admin Password</label>
+        <input type="password" name="admin_password" required>
 
-        <label>Admin E-Mail</label>
+        <label>Admin Email</label>
         <input type="email" name="admin_email" required>
 
-        <label>Mailserver Host</label>
-        <input type="text" name="mail_host" required placeholder="z. B. smtp.example.com">
+        <label>SMTP Host</label>
+        <input type="text" name="mail_host" required>
 
-        <label>Mailserver Port</label>
-        <input type="number" name="mail_port" required value="587">
+        <label>SMTP Username</label>
+        <input type="text" name="mail_username" required>
 
-        <label>Mail Benutzername</label>
-        <input type="text" name="mail_user" required>
+        <label>SMTP Password</label>
+        <input type="password" name="mail_password" required>
 
-        <label>Mail Passwort</label>
-        <input type="password" name="mail_pass" required>
+        <label>SMTP Port</label>
+        <input type="number" name="mail_port" required>
 
-        <label>Absender-E-Mail</label>
+        <label>Mail From Address</label>
         <input type="email" name="mail_from" required>
 
-        <input type="submit" value="Installation starten">
+        <label>Mail From Name</label>
+        <input type="text" name="mail_from_name" required>
+
+        <input type="submit" value="Install">
     </form>
 </body>
 </html>
