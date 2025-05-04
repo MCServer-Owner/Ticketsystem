@@ -1,44 +1,65 @@
-TICKET SYSTEM INSTALLATION - INSTRUCTIONS
-=====================================
+===============================
+ Ticket System: Installation Guide
+===============================
 
-1. PREREQUISITES
-------------------
-The following software must be installed on the web server:
+1. SYSTEM REQUIREMENTS
+-------------------------------
+Install the following packages:
 
-- PHP 8.2 or 8.3 (with the extensions: mysqli, mbstring, json, session, mail)
-- MySQL or MariaDB
-- Apache2 or Nginx with PHP support
-- Optional: mail server or SMTP access for password reset function
+sudo apt-get update
+sudo apt-get install -y apache2 php php-mysqli php-curl php-mbstring php-xml php-zip php-cli php-common mariadb-server unzip git
 
-You can install packages under Ubuntu/Debian (e.g. for PHP 8.2) like this:
+Optional (for mail functionality, e.g. using PHPMailer):
+sudo apt-get install -y sendmail
 
-    sudo apt update && apt install apache2 mariadb-server php8.2 php8.2-mysql php8.2-mbstring php8.2-json php8.2-session php8.2-cli php8.2-curl unzip
+Make sure Apache and MariaDB are running:
+sudo systemctl enable --now apache2 mariadb
 
-> If you are using PHP 8.3, replace `php8.2` with `php8.3`.
+2. FILES
+-------------------------------
+The following files and folders must be present in the project directory:
 
-2. UPLOAD FILES
---------------------
-Clone all files of the Repository or extract the ZIP archive to your web server, e.g. to `/var/www/html/ticketsystem`.
+- install.php                 → Launches the installation (database, admin user, mail config)
+- schema.sql                 → Contains SQL structure (users, tickets, comments, etc.)
+- config.php (auto-generated)
+- All other PHP files
+- Folder: vendor/            → For PHPMailer (if used)
 
-3. CONFIGURATION
-----------------
-Edit the file `config.php` and enter your database access data:
+3. INSTALLATION
+-------------------------------
+a) Open in your browser:
+   http://<your-domain>/install.php
 
-    $hostname = 'localhost';
-    $dbname = 'your_database';
-    $username = 'your_db_user';
-    $password = 'your_db_password';
+b) Enter all required settings:
+   - Database credentials
+   - Admin account information
+   - Mail server (SMTP) configuration
 
-4. SET UP DATABASE
------------------------
-Execute the installation script `install.php` once via your browser:
+c) Upon successful installation, `config.php` will be automatically generated.
 
-    http://deine-domain.de/ticketsystem/install.php
+d) You can then log in via `login.php`.
 
-The following tables are created automatically:
-- users
-- tickets
-- ticket_comments
-- ticket_status_history
+4. DATABASE
+-------------------------------
+If not executed automatically:
+   - You can import `schema.sql` manually (e.g. via phpMyAdmin or MySQL client)
 
-Then **delete or protect the `install.php`** to ensure security.
+Example:
+mysql -u root -p < schema.sql
+
+5. MAIL
+-------------------------------
+Mail functionality is configured via SMTP.
+Credentials are saved securely in `config.php`.
+
+6. SECURITY NOTES
+-------------------------------
+- Ensure that `config.php` is **not publicly writable**:
+  chmod 644 config.php
+
+- After installation, delete or rename `install.php` to prevent reconfiguration:
+  rm install.php
+
+===============================
+Done!
+===============================
