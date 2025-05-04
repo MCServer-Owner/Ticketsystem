@@ -12,8 +12,7 @@ The following software must be installed on the web server:
 
 You can install packages under Ubuntu/Debian (e.g. for PHP 8.2) like this:
 
-    sudo apt update
- sudo apt install apache2 mariadb-server php8.2 php8.2-mysql php8.2-mbstring php8.2-json php8.2-session php8.2-cli php8.2-curl unzip
+    sudo apt update && apt install apache2 mariadb-server php8.2 php8.2-mysql php8.2-mbstring php8.2-json php8.2-session php8.2-cli php8.2-curl unzip
 
 > If you are using PHP 8.3, replace `php8.2` with `php8.3`.
 
