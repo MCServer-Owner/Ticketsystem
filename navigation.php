@@ -1,10 +1,13 @@
-<?php
+<?php 
 require_once 'config.php';
 require_once 'admin_functions.php';
 
 $user_id = $_SESSION['user_id'] ?? null;
 $username = $_SESSION['username'] ?? 'Guest';
 $is_admin = $user_id ? isAdmin($user_id, $conn) : false;
+
+// Hole Support-Adresse aus SMTP-Konfiguration
+$support_email = $smtp_config['reply_to'] ?? 'support@example.com';
 ?>
 
 <!DOCTYPE html>
@@ -47,7 +50,7 @@ $is_admin = $user_id ? isAdmin($user_id, $conn) : false;
                         </li>
                     <?php endif; ?>
                     <li class="nav-link">
-                        <a href="mailto:support@myts3server.at">Contact Us</a>
+                        <a href="mailto:<?= htmlspecialchars($support_email) ?>">Contact Us</a>
                     </li>
                 </ul>
 
@@ -75,4 +78,3 @@ $is_admin = $user_id ? isAdmin($user_id, $conn) : false;
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
