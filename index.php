@@ -24,7 +24,7 @@ require_once 'admin_functions.php';
         <p>Please select an action above.</p>
     <?php else: ?>
         <h2>Welcome in our Ticketsystem!</h2>
-        <p>If you want to go back the Status, press <a href="http://status.myts3server.at/status/index.php">here</a>.</p>
+        <p>If you want to create Tickets. <a href="/register.php">Signup here</a>.</p>
     <?php endif; ?>
 </div>
 
