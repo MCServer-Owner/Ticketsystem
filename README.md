@@ -1,4 +1,5 @@
 📋 Ticket System – Installation Guide
+
 This web-based ticket system provides an intuitive interface for managing support requests and internal tasks. Follow the steps below to install and set up the application.
 
 🚀 Features
