@@ -1,65 +1,117 @@
+📋 Ticket System – Installation Guide
+This web-based ticket system provides an intuitive interface for managing support requests and internal tasks. Follow the steps below to install and set up the application.
 
- Ticket System: Installation Guide
+🚀 Features
+User and admin management
 
+Ticket creation, editing, assignment, and status tracking
 
-1. SYSTEM REQUIREMENTS
--------------------------------
-Install the following packages:
+Commenting and history for each ticket
 
-sudo apt-get update
-sudo apt-get install -y apache2 php php-mysqli php-curl php-mbstring php-xml php-zip php-cli php-common mariadb-server unzip git
+Email notifications via SMTP
 
-Optional (for mail functionality, e.g. using PHPMailer):
-sudo apt-get install -y sendmail
+Web-based installation with schema import
 
-Make sure Apache and MariaDB are running:
-sudo systemctl enable --now apache2 mariadb
+🧰 Requirements
+PHP 8.1 or higher
 
-2. FILES
--------------------------------
-The following files and folders must be present in the project directory:
+MySQL/MariaDB
 
-- install.php                 → Launches the installation (database, admin user, mail config)
-- schema.sql                 → Contains SQL structure (users, tickets, comments, etc.)
-- config.php (auto-generated)
-- All other PHP files
-- Folder: vendor/            → For PHPMailer (if used)
+Web server (Apache, Nginx, etc.)
 
-3. INSTALLATION
--------------------------------
-a) Open in your browser:
-   http://your-domain.tld/install.php
+SMTP credentials for email sending
 
-b) Enter all required settings:
-   - Database credentials
-   - Admin account information
-   - Mail server (SMTP) configuration
+🛠️ Installation Steps
+Upload the Files
 
-c) Upon successful installation, `config.php` will be automatically generated.
+Upload all project files to your desired web server directory (e.g., /var/www/html/ticketsystem).
 
-d) You can then log in via `login.php`.
+Start the Installation
 
-4. DATABASE
--------------------------------
-If not executed automatically:
-   - You can import `schema.sql` manually (e.g. via phpMyAdmin or MySQL client)
+Open your browser and navigate to the installation script:
 
-Example:
-mysql -u root -p < schema.sql
+http://your-domain.com/ticketsystem/install.php
+Fill in the Installation Form
 
-5. MAIL
--------------------------------
-Mail functionality is configured via SMTP.
-Credentials are saved securely in `config.php`.
+The installation is divided into three sections:
 
-6. SECURITY NOTES
--------------------------------
-- Ensure that `config.php` is **not publicly writable**:
-  chmod 644 config.php
+📂 Database Configuration
+Database host (usually localhost)
 
-- After installation, delete or rename `install.php` to prevent reconfiguration:
-  rm install.php
+Database name (e.g., ticketsystem)
 
-===============================
-Done!
-===============================
+Database user
+
+Database password (optional)
+
+📧 Email (SMTP) Configuration
+SMTP host (e.g., mail.example.com)
+
+SMTP port (e.g., 587)
+
+Encryption (TLS, SSL, or none)
+
+SMTP user
+
+SMTP password
+
+Sender email
+
+Reply-to email
+
+👤 Admin User
+Admin username
+
+Admin email
+
+Password (with confirmation)
+
+Start Installation
+
+Click on “Start Installation”. The system will:
+
+Test the database connection
+
+Create the database (if it doesn’t exist)
+
+Import all required tables
+
+Save the configuration to config.php
+
+Create the initial admin user
+
+Installation Complete
+
+If successful, you’ll be redirected to the login page.
+
+🔐 Security Note
+After installation:
+
+Delete or rename install.php to prevent unauthorized reinstallations.
+
+Make sure config.php is not writable for the web server.
+
+🔧 Troubleshooting
+❌ "The system is already installed."
+→ Delete config.php if you want to reinstall.
+
+❌ "Database connection failed."
+→ Check your database credentials and server.
+
+❌ "Admin passwords do not match."
+→ Re-enter the password and confirmation field.
+
+📁 Database Structure (Overview)
+users – All user and admin accounts
+
+tickets – Main ticket information
+
+ticket_comments – User comments on tickets
+
+ticket_status_history – History of ticket status changes and assignments
+
+📩 Email Functionality
+The system sends notifications (e.g., password reset, ticket updates) via the configured SMTP server.
+
+📞 Support
+For questions or support, please contact the system administrator or the development team.
