@@ -117,4 +117,4 @@ The system sends notifications (e.g., password reset, ticket updates) via the co
 📞 Support
 For questions or support, please contact the system administrator at support@myts3server.at or the development team.
 
-You can take a look at http://support.myts3server.at/support/ to see the full installed and productive system. You can also create Tickets for your installation, if you have suggestions or troubles.
+You can take a look at http://support.myts3server.at/support/ to see the full installed and productive system. You can also create Tickets for your installation, if you have suggestions or troubles. The username is visitor and the password is visitor. With this user you can look in to our Ticketsystem.
