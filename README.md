@@ -115,4 +115,4 @@ ticket_status_history – History of ticket status changes and assignments
 The system sends notifications (e.g., password reset, ticket updates) via the configured SMTP server.
 
 📞 Support
-For questions or support, please contact the system administrator or the development team.
+For questions or support, please contact the system administrator mailto:support@myts3server.at or the development team.
