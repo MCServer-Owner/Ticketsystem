@@ -23,9 +23,7 @@ Web server (Apache, Nginx, etc.)
 SMTP credentials for email sending
 
 🛠️ Installation Steps
-Upload the Files
-
-Upload all project files to your desired web server directory (e.g., /var/www/html/ticketsystem).
+Upload the ZIP-File (!!!!DON'T CLONE THE REPOSITORY!!!!) to your desired web server directory (e.g., /var/www/html/ticketsystem).
 
 Start the Installation
 
