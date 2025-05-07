@@ -2,8 +2,6 @@
 // install.php - Interaktive Installation mit Schema-Import
 
 session_start();
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
 
 // Prüfen, ob bereits installiert
 if (file_exists(__DIR__.'/config.php')) {
