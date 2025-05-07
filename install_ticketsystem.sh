@@ -3,7 +3,7 @@
 # prepare_environment.sh - Installationsskript für das Ticketsystem
 
 # Standardwerte
-DEFAULT_INSTALL_DIR="/var/www/html/development"
+DEFAULT_INSTALL_DIR="/var/www/html/"
 RELEASE_URL="https://github.com/MCServer-Owner/Ticketsystem/releases/download/updated/ticketsystem-v1.2.zip"
 
 # Farben für die Ausgabe
