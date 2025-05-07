@@ -24,7 +24,7 @@ SMTP credentials for email sending
 
 🛠️ Installation Steps
 
-Upload the ZIP-File (!!!!DON'T CLONE THE REPOSITORY!!!!) to your desired web server directory (e.g., /var/www/html/ticketsystem).
+Upload the ZIP-File to your desired web server directory (e.g., /var/www/html/ticketsystem). Alternatively you can use the script "install_ticketsystem.sh".
 
 Start the Installation
 
