@@ -10,7 +10,6 @@ NC='\033[0m' # No Color
 # Standardwerte
 DEFAULT_INSTALL_DIR="/var/www/ticketsystem"
 RELEASE_URL="https://github.com/MCServer-Owner/Ticketsystem/releases/download/updated/ticketsystem-v1.3.zip"
-VENDOR_SRC_DIR="/tmp/ticketsystem_vendor"
 
 # Funktion zur Fehlerbehandlung
 error_exit() {
@@ -70,34 +69,17 @@ wget -q --show-progress -O "$TEMP_ZIP" "$RELEASE_URL" || error_exit "Download fe
 echo -e "\n${YELLOW}Entpacke Dateien...${NC}"
 unzip -q "$TEMP_ZIP" -d "$INSTALL_DIR" || error_exit "Entpacken fehlgeschlagen"
 rm "$TEMP_ZIP"
+# Vendor-Verzeichnis an endgültigen Ort verschieben
+cp -r "${INSTALL_DIR}/vendor/vendor/." "${INSTALL_DIR}/vendor" || error_exit "Konnte Vendor-Verzeichnis nicht verschieben"
+rm -rf "${INSTALL_DIR}/vendor/vendor"
 
-# 5. Vendor-Verzeichnis vorbereiten
-echo -e "\n${YELLOW}Behandle Vendor-Verzeichnis...${NC}"
-if [ -d "${INSTALL_DIR}/vendor" ]; then
-    echo -e "${YELLOW}Vendor-Verzeichnis existiert bereits - überspringe...${NC}"
-else
-    # Temporäres Verzeichnis für Composer
-    mkdir -p "$VENDOR_SRC_DIR" || error_exit "Konnte temp Vendor-Verzeichnis nicht erstellen"
-    
-    # composer.json ins temp Verzeichnis kopieren
-    cp "${INSTALL_DIR}/composer.json" "$VENDOR_SRC_DIR" || error_exit "Konnte composer.json nicht kopieren"
-    
-    # Abhängigkeiten installieren
-    echo -e "${YELLOW}Installiere Composer-Abhängigkeiten...${NC}"
-    (cd "$VENDOR_SRC_DIR" && composer install --no-dev --optimize-autoloader) || error_exit "Composer-Installation fehlgeschlagen"
-    
-    # Vendor-Verzeichnis an endgültigen Ort verschieben
-    mv "${VENDOR_SRC_DIR}/vendor" "${INSTALL_DIR}/vendor" || error_exit "Konnte Vendor-Verzeichnis nicht verschieben"
-    rm -rf "$VENDOR_SRC_DIR"
-fi
-
-# 6. Berechtigungen setzen
+# 5. Berechtigungen setzen
 echo -e "\n${YELLOW}Setze Dateiberechtigungen...${NC}"
 sudo chown -R www-data:www-data "$INSTALL_DIR" || error_exit "Konnte Besitzer nicht setzen"
 sudo find "$INSTALL_DIR" -type d -exec chmod 755 {} \; || error_exit "Konnte Verzeichnisberechtigungen nicht setzen"
 sudo find "$INSTALL_DIR" -type f -exec chmod 644 {} \; || error_exit "Konnte Dateiberechtigungen nicht setzen"
 
-# 7. Erfolgsmeldung
+# 6. Erfolgsmeldung
 echo -e "\n${GREEN}Installation erfolgreich abgeschlossen!${NC}"
 echo -e "Das Ticketsystem wurde installiert in: ${GREEN}${INSTALL_DIR}${NC}"
 echo -e "\n${YELLOW}Nächste Schritte:${NC}"
