@@ -4,7 +4,7 @@
 
 # Standardwerte
 DEFAULT_INSTALL_DIR="/var/www/html/"
-RELEASE_URL="https://github.com/MCServer-Owner/Ticketsystem/releases/download/updated/ticketsystem-v1.2.zip"
+RELEASE_URL="https://github.com/MCServer-Owner/Ticketsystem/releases/download/updated/ticketsystem-v1.3.zip"
 
 # Farben für die Ausgabe
 RED='\033[0;31m'
