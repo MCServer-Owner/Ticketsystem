@@ -1,37 +1,44 @@
 #!/bin/bash
+# prepare_environment.sh - Optimierte Installation des Ticketsystems
 
-# prepare_environment.sh - Installationsskript für das Ticketsystem
-
-# Standardwerte
-DEFAULT_INSTALL_DIR="/var/www/html/"
-RELEASE_URL="https://github.com/MCServer-Owner/Ticketsystem/releases/download/updated/ticketsystem-v1.3.zip"
-
-# Farben für die Ausgabe
+# Farbdefinitionen
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Funktion zum Prüfen von Abhängigkeiten
+# Standardwerte
+DEFAULT_INSTALL_DIR="/var/www/ticketsystem"
+RELEASE_URL="https://github.com/MCServer-Owner/Ticketsystem/releases/download/updated/ticketsystem-v1.2.zip"
+VENDOR_SRC_DIR="/tmp/ticketsystem_vendor"
+
+# Funktion zur Fehlerbehandlung
+error_exit() {
+    echo -e "${RED}Fehler: $1${NC}" >&2
+    exit 1
+}
+
+# Abhängigkeiten prüfen
 check_dependencies() {
     local missing=0
-    for cmd in wget unzip; do
-        if ! command -v $cmd &> /dev/null; then
-            echo -e "${RED}Fehler: '$cmd' ist nicht installiert.${NC}"
+    for cmd in wget unzip mysql composer; do
+        if ! command -v $cmd &>/dev/null; then
+            echo -e "${RED}Fehlende Abhängigkeit: $cmd${NC}"
             missing=$((missing+1))
         fi
     done
     return $missing
 }
 
-# Installationsverzeichnis abfragen
-read -p "In welches Verzeichnis soll das Ticketsystem installiert werden? [${DEFAULT_INSTALL_DIR}]: " INSTALL_DIR
+# Installationsverzeichnis festlegen
+read -p "Installationsverzeichnis [${DEFAULT_INSTALL_DIR}]: " INSTALL_DIR
 INSTALL_DIR=${INSTALL_DIR:-$DEFAULT_INSTALL_DIR}
 
 # Bestätigung
 echo -e "\n${YELLOW}Installationsdetails:${NC}"
 echo -e " - Download-URL: ${GREEN}${RELEASE_URL}${NC}"
-echo -e " - Zielverzeichnis: ${GREEN}${INSTALL_DIR}${NC}\n"
+echo -e " - Zielverzeichnis: ${GREEN}${INSTALL_DIR}${NC}"
+echo -e " - Vendor-Verzeichnis: ${GREEN}${INSTALL_DIR}/vendor${NC}\n"
 
 read -p "Fortfahren? (j/N) " -n 1 -r
 echo
@@ -40,57 +47,62 @@ if [[ ! $REPLY =~ ^[JjYy]$ ]]; then
     exit 1
 fi
 
-# Abhängigkeiten prüfen
+# 1. Abhängigkeiten prüfen
 echo -e "\n${YELLOW}Prüfe Systemvoraussetzungen...${NC}"
 if ! check_dependencies; then
-    echo -e "${RED}Bitte installieren Sie die fehlenden Pakete und führen Sie das Skript erneut aus.${NC}"
+    echo -e "${RED}Bitte installieren Sie die fehlenden Pakete.${NC}"
+    echo -e "Für Ubuntu/Debian:"
+    echo -e "  sudo apt-get install wget unzip mysql-client composer"
     exit 1
 fi
 
-# Verzeichnis erstellen
-echo -e "\n${YELLOW}Erstelle Installationsverzeichnis...${NC}"
-sudo mkdir -p "$INSTALL_DIR"
-if [ $? -ne 0 ]; then
-    echo -e "${RED}Konnte Verzeichnis ${INSTALL_DIR} nicht erstellen.${NC}"
-    exit 1
-fi
+# 2. Verzeichnisstruktur erstellen
+echo -e "\n${YELLOW}Erstelle Verzeichnisstruktur...${NC}"
+sudo mkdir -p "$INSTALL_DIR" || error_exit "Konnte Installationsverzeichnis nicht erstellen"
+sudo chown -R $USER:$USER "$INSTALL_DIR" || error_exit "Konnte Besitzer nicht ändern"
 
-# Temporäres Verzeichnis für den Download
-TEMP_DIR=$(mktemp -d)
-
-# Download durchführen
+# 3. Ticketsystem herunterladen
 echo -e "\n${YELLOW}Lade Ticketsystem herunter...${NC}"
-wget -q --show-progress -O "${TEMP_DIR}/ticketsystem.zip" "$RELEASE_URL"
-if [ $? -ne 0 ]; then
-    echo -e "${RED}Download fehlgeschlagen!${NC}"
-    rm -rf "$TEMP_DIR"
-    exit 1
-fi
+TEMP_ZIP=$(mktemp)
+wget -q --show-progress -O "$TEMP_ZIP" "$RELEASE_URL" || error_exit "Download fehlgeschlagen"
 
-# Dateien entpacken
+# 4. Dateien entpacken
 echo -e "\n${YELLOW}Entpacke Dateien...${NC}"
-sudo unzip -q "${TEMP_DIR}/ticketsystem.zip" -d "$INSTALL_DIR"
-if [ $? -ne 0 ]; then
-    echo -e "${RED}Entpacken fehlgeschlagen!${NC}"
-    rm -rf "$TEMP_DIR"
-    exit 1
+unzip -q "$TEMP_ZIP" -d "$INSTALL_DIR" || error_exit "Entpacken fehlgeschlagen"
+rm "$TEMP_ZIP"
+
+# 5. Vendor-Verzeichnis vorbereiten
+echo -e "\n${YELLOW}Behandle Vendor-Verzeichnis...${NC}"
+if [ -d "${INSTALL_DIR}/vendor" ]; then
+    echo -e "${YELLOW}Vendor-Verzeichnis existiert bereits - überspringe...${NC}"
+else
+    # Temporäres Verzeichnis für Composer
+    mkdir -p "$VENDOR_SRC_DIR" || error_exit "Konnte temp Vendor-Verzeichnis nicht erstellen"
+    
+    # composer.json ins temp Verzeichnis kopieren
+    cp "${INSTALL_DIR}/composer.json" "$VENDOR_SRC_DIR" || error_exit "Konnte composer.json nicht kopieren"
+    
+    # Abhängigkeiten installieren
+    echo -e "${YELLOW}Installiere Composer-Abhängigkeiten...${NC}"
+    (cd "$VENDOR_SRC_DIR" && composer install --no-dev --optimize-autoloader) || error_exit "Composer-Installation fehlgeschlagen"
+    
+    # Vendor-Verzeichnis an endgültigen Ort verschieben
+    mv "${VENDOR_SRC_DIR}/vendor" "${INSTALL_DIR}/vendor" || error_exit "Konnte Vendor-Verzeichnis nicht verschieben"
+    rm -rf "$VENDOR_SRC_DIR"
 fi
 
-# Berechtigungen setzen
+# 6. Berechtigungen setzen
 echo -e "\n${YELLOW}Setze Dateiberechtigungen...${NC}"
-sudo chown -R www-data:www-data "$INSTALL_DIR"
-sudo find "$INSTALL_DIR" -type d -exec chmod 755 {} \;
-sudo find "$INSTALL_DIR" -type f -exec chmod 644 {} \;
+sudo chown -R www-data:www-data "$INSTALL_DIR" || error_exit "Konnte Besitzer nicht setzen"
+sudo find "$INSTALL_DIR" -type d -exec chmod 755 {} \; || error_exit "Konnte Verzeichnisberechtigungen nicht setzen"
+sudo find "$INSTALL_DIR" -type f -exec chmod 644 {} \; || error_exit "Konnte Dateiberechtigungen nicht setzen"
 
-# Aufräumen
-rm -rf "$TEMP_DIR"
-
-# Erfolgsmeldung
+# 7. Erfolgsmeldung
 echo -e "\n${GREEN}Installation erfolgreich abgeschlossen!${NC}"
-echo -e "Das Ticketsystem wurde installiert nach: ${GREEN}${INSTALL_DIR}${NC}"
-echo -e "\nNächste Schritte:"
-echo -e "1. Konfiguration anpassen: ${INSTALL_DIR}/config.php"
-echo -e "2. Datenbank einrichten (falls benötigt)"
-echo -e "3. Webserver konfigurieren\n"
+echo -e "Das Ticketsystem wurde installiert in: ${GREEN}${INSTALL_DIR}${NC}"
+echo -e "\n${YELLOW}Nächste Schritte:${NC}"
+echo -e "1. Datenbank konfigurieren (bearbeiten Sie ${INSTALL_DIR}/.env)"
+echo -e "2. Webserver einrichten (Apache/Nginx)"
+echo -e "3. Das System unter http://your-domain.com aufrufen\n"
 
 exit 0
