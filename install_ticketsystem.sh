@@ -51,7 +51,7 @@ echo -e "\n${YELLOW}Prüfe Systemvoraussetzungen...${NC}"
 if ! check_dependencies; then
     echo -e "${RED}Bitte installieren Sie die fehlenden Pakete.${NC}"
     echo -e "Für Ubuntu/Debian:"
-    echo -e "  sudo apt-get install wget unzip mysql-client composer"
+    echo -e "  sudo apt-get install wget unzip mariadb-client composer"
     exit 1
 fi
 
