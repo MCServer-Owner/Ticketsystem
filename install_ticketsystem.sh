@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 
 # Standardwerte
 DEFAULT_INSTALL_DIR="/var/www/ticketsystem"
-RELEASE_URL="https://github.com/MCServer-Owner/Ticketsystem/releases/download/updated/ticketsystem-v1.3.zip"
+RELEASE_URL="https://github.com/MCServer-Owner/Ticketsystem/releases/download/updated/ticketsystem-latest.zip"
 
 # Funktion zur Fehlerbehandlung
 error_exit() {
